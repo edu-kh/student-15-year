@@ -1045,6 +1045,18 @@ function renderScores() {
                 ${buildCustomSelect(sub, ["ប", "ស"])}
             `;
         }
+         else if(sub === "ភូមិ"){
+            fieldHTML = `
+                <label>${sub}</label>
+                ${buildCustomSelect(sub, ["១", "២", "៣", "៤", "៥", "៦", ])}
+            `;
+        }
+         else if(sub === "សង្កាត់"){
+            fieldHTML = `
+                <label>${sub}</label>
+                ${buildCustomSelect(sub, ["១", "២", "៣", "៤", "៥", "៦", ])}
+            `;
+        }
         else if(sub === "ថ្ងៃខែឆ្នាំកំណើត"){
             fieldHTML = `
                 <label>${sub}</label>
