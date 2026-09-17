@@ -1115,10 +1115,16 @@ function renderScores() {
                 <input type="date" value="${formatToIsoDate(scores[sub])}">
             `;
         }
-         else if(sub === "លេខទូរសព្ទ" || sub === "លេខតុ" || sub === "លេខបន្ទប់" || sub === "ប្រាក់ចំណូលគ្រួសារ/១ខែ($)" || sub === "ទម្ងន់(គីឡូក្រាម)" || sub === "កម្ពស់(ម៉ែត្រ)" ){
+         else if(sub === "លេខទូរសព្ទ"){
             fieldHTML = `
                 <label>${sub}</label>
-                <input type="number" value="${scores[sub]}">
+                <input type="text" inputmode="numeric" value="${scores[sub] || ''}">
+            `;
+        }
+         else if(sub === "លេខតុ" || sub === "លេខបន្ទប់" || sub === "ប្រាក់ចំណូលគ្រួសារ/១ខែ($)" || sub === "ទម្ងន់(គីឡូក្រាម)" || sub === "កម្ពស់(ម៉ែត្រ)" ){
+            fieldHTML = `
+                <label>${sub}</label>
+                <input type="number" value="${scores[sub] || ''}">
             `;
         }
         else if(sub === "ប្រភេទសិស្ស"){
