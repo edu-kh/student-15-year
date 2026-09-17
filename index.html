@@ -758,7 +758,6 @@ const SUBJECTS = [
 ];
 
 let currentStudentId = null;
-const EXAM_FIELDS_GRADE10_ONLY = ["មណ្ឌលប្រឡងបឋមភូមិ", "លេខតុ", "លេខបន្ទប់", "សម័យប្រឡងបឋមភូមិ"];
 let currentStudentName = null;
 let studentNames = []; 
 let currentIndex = -1;
@@ -1035,15 +1034,7 @@ function renderScores() {
     grid.innerHTML = '';
     csPortalRoot.innerHTML = ''; // drop any dropdown lists left over from the previous render
 
-    let currentSchool = scores["ឈ្មោះសាលារៀនឆ្នាំមុន"] || "";
-    let isOtherSchool = (currentSchool !== "" && currentSchool !== "បឋមផ្សារលើ" && currentSchool !== "បឋមមិត្តភាព" && currentSchool !== "បឋមអូរត្រេះ" && currentSchool !== "វិ.ហសមិត្តភាព") || (scores["_isOtherMode"] === true);
-
-    let gradeNum = parseInt(scores["ថ្នាក់រៀនទី"], 10);
-
     SUBJECTS.forEach(sub => {
-        if (EXAM_FIELDS_GRADE10_ONLY.includes(sub) && !isNaN(gradeNum) && gradeNum < 10) {
-            return;
-        }
         let div = document.createElement('div');
         div.className = 'score-box';
         let fieldHTML = "";
@@ -1054,173 +1045,16 @@ function renderScores() {
                 ${buildCustomSelect(sub, ["ប", "ស"])}
             `;
         }
-        else if(sub === "PISA"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["✖️", "✓"])}
-            `;
-        }
-        else if(sub === "លក្ខខណ្ឌ"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["សិស្សដើមឆ្នាំ", "សិស្សចូលបន្ថែម"])}
-            `;
-        }
-        else if(sub === "ឈ្មោះសាលារៀនឆ្នាំមុន"){
-            if (isOtherSchool) {
-                fieldHTML = `
-                    <label>${sub} <span style="color: red;"></span></label>
-                    <div style="display:flex; gap:2px;">
-                        <input type="text" value="${scores[sub] || ''}" placeholder="ឈ្មោះសាលា..." data-required="true" required>
-                        <button type="button" id="btnResetSchool" class="btn-gray" style="padding:2px 5px; font-size:0.8rem;">ដូរ</button>
-                    </div>
-                `;
-            } else {
-                fieldHTML = `
-                    <label>${sub}</label>
-                    ${buildCustomSelect(sub, ["បឋមផ្សារលើ", "បឋមមិត្តភាព", "បឋមអូរត្រេះ", "វិ.ហសមិត្តភាព", {value: "other", label: "សាលាផ្សេង"}])}
-                `;
-            }
-        }
-        else if(sub === "ចំណុះឬក្រៅ"){
-            if (isOtherSchool) {
-                fieldHTML = `
-                    <label>${sub}</label>
-                    ${buildCustomSelect(sub, ["បឋមក្រៅចំណុះ", "អនុវិ.ក្រៅចំណុះ"])}
-                `;
-            } else {
-                let isDisabled = (currentSchool === "បឋមផ្សារលើ" || currentSchool === "បឋមមិត្តភាព" || currentSchool === "បឋមអូរត្រេះ" || currentSchool === "វិ.ហសមិត្តភាព");
-                fieldHTML = `
-                    <label>${sub}</label>
-                    ${buildCustomSelect(sub, ["បឋមចំណុះ", "អនុវិ.ចំណុះ"], isDisabled)}
-                `;
-            }
-        }
-        else if(sub === "មកពីសាលា"){
-            let isDisabled = (currentSchool === "បឋមផ្សារលើ" || currentSchool === "បឋមមិត្តភាព" || currentSchool === "បឋមអូរត្រេះ" || currentSchool === "វិ.ហសមិត្តភាព" || isOtherSchool);
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["សាលាគោលដៅ", "សាលាក្រៅគោលដៅ"], isDisabled)}
-            `;
-        }
         else if(sub === "ថ្ងៃខែឆ្នាំកំណើត"){
             fieldHTML = `
                 <label>${sub}</label>
                 <input type="text" value="${formatDateOnly(scores[sub])}">
             `;
         }
-        else if(sub === "សម័យប្រឡងបឋមភូមិ"){
-            fieldHTML = `
-                <label>${sub}</label>
-                <input type="date" value="${formatToIsoDate(scores[sub])}">
-            `;
-        }
          else if(sub === "លេខទូរសព្ទ"){
             fieldHTML = `
                 <label>${sub}</label>
                 <input type="text" inputmode="numeric" value="${scores[sub] || ''}">
-            `;
-        }
-         else if(sub === "លេខតុ" || sub === "លេខបន្ទប់" || sub === "ប្រាក់ចំណូលគ្រួសារ/១ខែ($)" || sub === "ទម្ងន់(គីឡូក្រាម)" || sub === "កម្ពស់(ម៉ែត្រ)" ){
-            fieldHTML = `
-                <label>${sub}</label>
-                <input type="number" value="${scores[sub] || ''}">
-            `;
-        }
-        else if(sub === "ប្រភេទសិស្ស"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["សិស្សឡើងថ្នាក់", "សិស្សចូលថ្មី", "ផ្ទេរចូល", "ត្រួត", "ចូលរៀនឡើងវិញ"])}
-            `;
-        }
-        else if(sub === "ប្រភេទពិការភាព"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["មិនមាន", "ពិបាកក្នុងការមើល", "ពិបាកក្នុងការស្ដាប់", "ពិបាកក្នុងការធ្វើចលនា", "ពិបាកក្នុងការនិយាយ"])}
-            `;
-        }
-        else if(sub === "ឧបករណ៍ជំនួយ"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["មិនមាន", "មានវ៉ែនតា", "មានឧបករណ៍ស្តាប់", "មានវ៉ែនតា&មានឧបករណ៍ស្តាប់", "មានរទេះជនពិការ"])}
-            `;
-        }
-        else if(sub === "បណ្ណក្រីក្រ"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["មិនមាន", "ក្រ ១", "ក្រ ២", "បណ្ណហានិភ័យ"])}
-            `;
-        }
-         else if(sub === "កំព្រា"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["មិនមាន", "កុមារកំព្រាឪពុក", "កុមារកំព្រាម្តាយ", "កុមារកំព្រាឪពុក&កុមារកំព្រាម្តាយ"])}
-            `;
-        }
-        else if(sub === "អាហារូបករណ៍"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["មិនមាន", "កម្មវិធីអាហារូបករណ៍", "PB", "Unicef", "ADB", "ផ្តល់ដោយសហគមន៍", "អង្គការផ្សេងៗ"])}
-            `;
-        }
-        else if(sub === "ចំណាកស្រុក(ឪពុកម្តាយ)"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["មិនមាន", "ធ្វើការក្រៅប្រទេស", "ធ្វើការក្នុងប្រទេស", "ធ្វើការនៅក្នុងខេត្ត"])}
-            `;
-        }
-        else if(sub === "ហឹង្សាក្នុងគ្រួសារ"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["មិនមាន", "មានម្តងម្កាល", "មានញឹកញាប់"])}
-            `;
-        }
-        else if(sub === "មធ្យោបាយព្យាបាល"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["មិនមាន", "ចំណាយដោយបន្ទុកគ្រួសារ", "ចំណាយគាំទ្រពីប្រភពផ្សេង"])}
-            `;
-        }
-        else if(sub === "ផ្ទះសំបែង(ជម្រក)"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["ផ្ទះជួល", "ស្នាក់នៅជាមួយញាតិមិត្ត", "មិនពិតប្រាកដ", "ផ្ទះឈើប្រកស្លឹក", "ផ្ទះឈើប្រកក្បឿង", "ផ្ទះឈើប្រកសំង្កសី", "ផ្ទះថ្ម"])}
-            `;
-        }
-          else if(sub === "បញ្ហាសុខភាពសិស្ស"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["សុខភាពល្អ", "ឈឺម្តងម្កាល", "មានជំងឺប្រចាំកាយ"])}
-            `;
-        }
-          else if(sub === "អ្នកផ្ដល់ការព្យាបាល"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["មិនមាន", "គ្រួសារសាច់ញាតិ", "សហគមន៍", "អង្គការ", "កម្មវិធីរដ្ឋាភិបាល"])}
-            `;
-        }
-         else if(sub === "ស្ថានភាពរស់នៅ"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["ជាមួយឪពុក&ជាមួយម្តាយ", "ជាមួយឪពុក", "ជាមួយម្ដាយ", "ជាមួយអ្នកអាណាព្យាបាល", "ជាមួយសាច់ញាតិ"])}
-            `;
-        }
-          else if(sub === "ការចូលរួមអាណាព្យាបាល"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["1-ចូលរួមប្រជុំប្រចាំខែ", "2-ចូលរួមជួយកូន", "3-ចូលរួមជួយគ្រូ", "4-ចូលរួមកែលម្អថ្នាក់រៀន", "5-ផ្សេងៗ"])}
-            `;
-        }
-          else if(sub === "សំណូមពរអាណាព្យាបាល"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["មិនមាន", "ជួយណែនាំសិស្សបន្ថែម", "ពង្រឹងការប្រឡង", "ពង្រឹងវិន័យ", "តាមដាននិងយកចិត្តទុកដាក់សិស្ស"])}
-            `;
-        }
-          else if(sub === "ក្រុមប្រឹក្សាយុវជន-កុមារ"){
-            fieldHTML = `
-                <label>${sub}</label>
-                ${buildCustomSelect(sub, ["មិនមាន", "ប្រធាន", "អនុប្រធាន", "សមាជិក"])}
             `;
         }
         else {
@@ -1235,36 +1069,6 @@ function renderScores() {
 
         input.oninput = e => {
             let value = e.target.value;
-            
-            if (sub === "ឈ្មោះសាលារៀនឆ្នាំមុន") {
-                if (value === "other") {
-                    scores[sub] = ""; 
-                    scores["_isOtherMode"] = true; 
-                    scores["ចំណុះឬក្រៅ"] = ""; 
-                    scores["មកពីសាលា"] = "សាលាក្រៅគោលដៅ";   
-                    renderScores(); 
-                    setTimeout(() => {
-                        let txtBox = grid.querySelector('input[placeholder="ឈ្មោះសាលា..."]');
-                        if (txtBox) txtBox.focus();
-                    }, 50);
-                } else {
-                    scores[sub] = value;
-                    if (value !== "") {
-                        delete scores["_isOtherMode"];
-                    }
-                    if (value === "បឋមផ្សារលើ" || value === "បឋមមិត្តភាព" || value === "បឋមអូរត្រេះ" ) {
-                        scores["ចំណុះឬក្រៅ"] = "បឋមចំណុះ";
-                        scores["មកពីសាលា"] = "សាលាគោលដៅ";
-                    } else if (value === "វិ.ហសមិត្តភាព") {
-                        scores["ចំណុះឬក្រៅ"] = "អនុវិ.ចំណុះ";
-                        scores["មកពីសាលា"] = "សាលាគោលដៅ";
-                    }
-                    if (!isOtherSchool) {
-                        renderScores();
-                    }
-                }
-                return; 
-            }
 
             if (sub === "ថ្ងៃខែឆ្នាំកំណើត" && value) {
                 if (value.includes('T') || value.includes('GMT')) {
@@ -1273,17 +1077,10 @@ function renderScores() {
                 } else {
                     scores[sub] = value;
                 }
-            } else if (sub === "សម័យប្រឡងបឋមភូមិ") {
-                // If the user picks a date from the date input box, save it in strict YYYY-MM-DD
-                scores[sub] = value; 
             } else {
                 scores[sub] = value;
             }
         };
-
-        if (sub === "ថ្នាក់រៀនទី") {
-            input.addEventListener('change', () => renderScores());
-        }
 
         // Wire up any custom dropdown(s) in this box so they behave like a native select
         // but stay styled the same on mobile and desktop.
@@ -1374,16 +1171,6 @@ function renderScores() {
             });
         });
 
-        if(sub === "ឈ្មោះសាលារៀនឆ្នាំមុន" && isOtherSchool) {
-            div.querySelector('#btnResetSchool').onclick = () => {
-                delete scores["_isOtherMode"];
-                scores["ឈ្មោះសាលារៀនឆ្នាំមុន"] = "";
-                scores["ចំណុះឬក្រៅ"] = "";
-                scores["មកពីសាលា"] = "";
-                renderScores();
-            };
-        }
-
         grid.appendChild(div);
     });
 }
@@ -1393,11 +1180,7 @@ function saveToSheet() {
     const statusMsg = document.getElementById('saveStatus');
     const statusMsgh = document.getElementById('saveStatush');
 
-    let gradeNumForSave = parseInt(scores["ថ្នាក់រៀនទី"], 10);
     for (let key of SUBJECTS) {
-        if (EXAM_FIELDS_GRADE10_ONLY.includes(key) && !isNaN(gradeNumForSave) && gradeNumForSave < 10) {
-            continue;
-        }
         if (!scores[key] || scores[key].toString().trim() === "") {
             statusMsg.style.color = '#CA6F1E';
             statusMsg.textContent = '⚠ សូមបំពេញព័ត៌មានទាំងអស់';
@@ -1435,10 +1218,6 @@ function saveToSheet() {
     SUBJECTS.forEach(sub => {
         if (sub === "ថ្ងៃខែឆ្នាំកំណើត" && sanitizedScores[sub]) {
             sanitizedScores[sub] = formatDateOnly(sanitizedScores[sub]);
-        }
-        if (sub === "សម័យប្រឡងបឋមភូមិ" && sanitizedScores[sub]) {
-            // Keep it saved clearly as YYYY-MM-DD format
-            sanitizedScores[sub] = formatToIsoDate(sanitizedScores[sub]);
         }
     });
 
